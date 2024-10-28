@@ -5,7 +5,7 @@ import { generateOrderEmail } from "./emailMapper";
 async function sendEmail(order: any, recipient: string) {
   const { text, html } = generateOrderEmail(order);
   const mailOptions = {
-    from: "ybandhara@gmail.com",
+    from: "saluja.pawan6@gmail.com",
     to: recipient,
     subject: "Order Confirmation",
     text,
@@ -14,7 +14,7 @@ async function sendEmail(order: any, recipient: string) {
 
   try {
     const transporter = await createTransporter();
-    return transporter.sendMail(mailOptions);
+    return await transporter.sendMail(mailOptions);
   } catch (error) {
     console.error("Error sending email:", error);
     throw error;

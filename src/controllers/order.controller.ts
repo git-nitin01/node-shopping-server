@@ -64,7 +64,7 @@ class OrderController {
         .json({ message: "Failed to get orders", error: error.message });
     }
   }
-  async getOrderById(req: Request, res: Response): Promise<void> {
+  async getOrderByUserId(req: Request, res: Response): Promise<void> {
     try {
       const userId = req?.query?.userId as string | undefined;
       if (!userId) {
@@ -72,7 +72,7 @@ class OrderController {
         return;
       }
       const product: orderDTO[] | null =
-        await this.orderService.getOrderById(userId);
+        await this.orderService.getOrderByUserId(userId);
       if (product) {
         res.status(200).json(product);
       } else {
@@ -84,6 +84,28 @@ class OrderController {
         .json({ message: "Failed to get order", error: error.message });
     }
   }
+
+  async getOrderById(req: Request, res: Response): Promise<void> {
+    try {
+      const orderId = req.params.id;
+      if (!orderId) {
+        res.status(400).json({ message: "Order ID is required" });
+        return;
+      }
+      const order: orderDTO | null =
+        await this.orderService.getOrderById(orderId);
+      if (order) {
+        res.status(200).json(order);
+      } else {
+        res.status(404).json({ message: "Order not found" });
+      }
+    } catch (error: any) {
+      res
+        .status(500)
+        .json({ message: "Failed to get order by ID", error: error.message });
+    }
+  }
+
   async updateOrder(req: Request, res: Response): Promise<void> {
     try {
       const orderId: string = req.params.id;

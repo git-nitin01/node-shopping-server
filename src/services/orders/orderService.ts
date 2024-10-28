@@ -33,6 +33,7 @@ class OrderService {
     const t = await sequelize.transaction();
 
     try {
+      console.log("Creating order with input:", orderInput);
       // Find existing order for the given user
       const existingOrder = await Order.findOne({
         where: { userId: orderInput?.userId },
@@ -53,9 +54,22 @@ class OrderService {
           }),
         );
       } else {
+        // need to remove once mapping is correct
+        const orderData = {
+          userId: orderInput.userId,
+          PointsUsed: orderInput.pointsUsed,
+          TotalAmount: orderInput.totalAmount,
+          OrderDate: orderInput.orderDate || new Date(),
+          DeliveryAddressId: orderInput.deliveryAddressId || null,
+          PaymentId: orderInput.paymentId || "",
+          Status: orderInput.status || "Pending",
+        };
         // No existing order found, create a new order
-        console.log("No existing order found. Creating a new order.");
-        const newOrder = await Order.create(orderInput as any, {
+        console.log(
+          "No existing order found. Creating a new order.",
+          orderData,
+        );
+        const newOrder = await Order.create(orderData as any, {
           transaction: t,
         });
         createdOrderID = newOrder.dataValues.OrderId;
@@ -70,11 +84,26 @@ class OrderService {
       }
 
       await t.commit();
-      return this.getOrderById(orderInput?.userId);
+      return this.getOrderByUserId(orderInput?.userId);
     } catch (error) {
       await t.rollback();
       console.error("Failed to create order:", error);
       throw new Error("Failed to create order");
+    }
+  }
+
+  public async getOrderById(orderId: string): Promise<orderDTO | null> {
+    try {
+      const order = await Order.findByPk(orderId);
+      if (!order) {
+        return null;
+      }
+
+      const orderItems = await this.getOrderItemsByOrderId(orderId);
+      return this.mapOrderToDTO(order, orderItems);
+    } catch (error) {
+      console.error("Error fetching order by ID:", error);
+      throw new Error("Failed to fetch order by ID");
     }
   }
 
@@ -88,7 +117,7 @@ class OrderService {
       ProductID: prodData?.productID,
       Quantity: prodData?.Quantity,
       UnitPrice: prodData?.UnitPrice,
-      Subtotal: prodData?.subTotal.toFixed(2),
+      Subtotal: prodData?.subTotal,
       size: prodData?.size,
     };
     const newOrderItem = await OrderItem.create(sampleData as any, {
@@ -131,7 +160,7 @@ class OrderService {
     }
   };
 
-  public async getOrderById(userId: string): Promise<orderDTO[] | null> {
+  public async getOrderByUserId(userId: string): Promise<orderDTO[] | null> {
     const currentDate = new Date();
 
     try {
@@ -167,7 +196,6 @@ class OrderService {
           return this.mapOrderToDTO(order, orderItems);
         }),
       );
-      console.log(orderDTOs, "orderDTOs");
 
       // Return the DTOs, you might need to adjust this based on your requirements
       return orderDTOs.length > 0 ? orderDTOs : null;
@@ -217,7 +245,7 @@ class OrderService {
       );
       await Promise.all(orderItemsPromises);
     }
-    return this.getOrderById(orderInput?.userId);
+    return this.getOrderByUserId(orderInput?.userId);
   }
   public async deleteOrder(orderId: string): Promise<void> {
     await OrderItem.destroy({ where: { OrderID: orderId } });
@@ -264,6 +292,8 @@ class OrderService {
                   productDetails: {
                     ...productDetails,
                     defaultSizes: defaultSizes,
+                    imageURL: productDetails?.sizes[0]?.images[0],
+                    price: productDetails?.sizes[0]?.price || 0,
                   },
                   subTotal: item.Subtotal || 0,
                 };
