@@ -196,7 +196,6 @@ class OrderService {
           return this.mapOrderToDTO(order, orderItems);
         }),
       );
-      console.log(orderDTOs, "orderDTOs");
 
       // Return the DTOs, you might need to adjust this based on your requirements
       return orderDTOs.length > 0 ? orderDTOs : null;

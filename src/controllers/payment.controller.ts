@@ -52,7 +52,7 @@ class PaymentController {
         const createdOrder = await this.orderService.createOrder({
           userId,
           deliveryAddressId: addresId,
-          paymentId: createdPayment.paymentIntentId,
+          paymentId: null,
           status: "pending",
           Products: products,
           orderDate: new Date(),
