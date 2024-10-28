@@ -31,7 +31,7 @@ const Order = sequelize.define(
       allowNull: true,
     },
     PaymentId: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     Status: {

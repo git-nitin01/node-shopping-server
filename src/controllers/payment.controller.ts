@@ -1,12 +1,10 @@
 import { Request, Response } from "express";
-// import ProductService from "../../services/products/ProductService";
 import OrderService from "../services/orders/orderService";
-// import limiter from "../emailConfig/emailLimiter";
-// import sendEmail from "../utilities/sendMail";
 import PyamentService from "../services/paymentService";
-// import { generateOrderSummary } from "../utilities/smsMapper";
-// import sendSms from "../utilities/sendSms";
-// import sendMessage from "../utilities/sendMessage";
+import limiter from "../emailConfig/emailLimiter";
+import sendEmail from "../utilities/sendMail";
+import { generateOrderSummary } from "../utilities/smsMapper";
+import sendSms from "../utilities/sendSms";
 // import consumer from "../utilities/consumer";
 
 class PaymentController {
@@ -28,24 +26,63 @@ class PaymentController {
   // CREATE a new order
   async createPyament(req: Request, res: Response): Promise<void> {
     try {
-      const { amount } = req.body;
-      const createdPayment = await this.paymentService.createPayment(amount);
-      if (createdPayment) {
-        // Sending order through sms and email , uncpmment when it will be used
+      const {
+        amount,
+        userId,
+        email,
+        phoneNumber,
+        products,
+        pointsUsed,
+        addresId,
+      } = req.body;
 
-        // const user = await this.userService.getById(createdOrder.userId);
-        // const recipients = [user?.email];
-        // const limitedSendEmail = limiter.wrap(sendEmail);
-        // const emailPromises = recipients.map((recipient: string) => limitedSendEmail(createdOrder, recipient));
-        // await Promise.all(emailPromises);
-        // const userContact = {
-        //   phone: '+917046048033' // User's phone number , for now it is static
-        // };
-        // const orderSummaryMessage = generateOrderSummary(createdOrder);
-        // sendSms(userContact.phone,orderSummaryMessage)
-        res.status(200).json({ message: "sucesss", data: createdPayment });
+      if (!amount || !userId || !(email || phoneNumber)) {
+        res.status(400).json({ message: "All fields are required." });
+        return;
+      }
+
+      const createdPayment = await this.paymentService.createPayment(
+        amount,
+        userId,
+        email,
+        phoneNumber,
+      );
+      console.log("createdPayment", createdPayment);
+      if (createdPayment) {
+        const createdOrder = await this.orderService.createOrder({
+          userId,
+          deliveryAddressId: addresId,
+          paymentId: createdPayment.paymentIntentId,
+          status: "pending",
+          Products: products,
+          orderDate: new Date(),
+          totalAmount: amount,
+          pointsUsed,
+        });
+        console.log("createdOrder", createdOrder);
+        // Sending order through sms and email , uncpmment when it will be used
+        if (createdOrder && createdOrder[0]) {
+          const limitedSendEmail = limiter.wrap(sendEmail);
+          const recipients = [email, "saluja.pawan6@gmail.com"];
+          const emailPromises = recipients.map((recipient: string) =>
+            limitedSendEmail(createdOrder[0], recipient),
+          );
+          await Promise.all(emailPromises);
+
+          if (phoneNumber) {
+            const userContact = {
+              phone: phoneNumber,
+            };
+            const orderSummaryMessage = generateOrderSummary(createdOrder[0]);
+            await sendSms(userContact.phone, orderSummaryMessage);
+          }
+        }
+        res
+          .status(200)
+          .json({ message: "sucesss", data: { createdPayment, createdOrder } });
       }
     } catch (error: any) {
+      console.log("error", error);
       res
         .status(500)
         .json({ message: "Failed to create payemnt", error: error.message });

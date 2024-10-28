@@ -11,21 +11,32 @@ class PaymentService {
   }
 
   // CREATE PAYMENT
-  public async createPayment(amount: number): Promise<any> {
+  public async createPayment(
+    amount: number,
+    userId: string,
+    email: string,
+    phoneNumber: number,
+  ): Promise<any> {
     try {
       // CREATE STRIPE PAYMENT INTENT
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: amount, // Convert to cents
+        amount,
         currency: "cad",
-        receipt_email: "ybandhara@gmail.com",
+        receipt_email: email,
         automatic_payment_methods: {
           enabled: true,
         },
+        metadata: {
+          userId,
+          phoneNumber,
+        },
       });
+
       console.log(paymentIntent);
       // RETURN SUCCESS RESPONSE
       return {
         clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id,
       };
     } catch (error) {
       // LOG AND RETURN ERRORS
