@@ -3,7 +3,7 @@ import express, { Application, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import bodyParser from "body-parser";
-import { connectToMySQL } from "./src/config/mySql";
+import { connectToHostedSQL } from "./src/config/mySql";
 import connectToMongoDB from "./src/config/mongoDB";
 import router from "./src/Router";
 import setupSwagger from "./swagger";
@@ -53,7 +53,7 @@ admin.initializeApp({
 // Connect to databases
 const connectDatabases = async () => {
   try {
-    const mysqlConnection = await connectToMySQL();
+    const mysqlConnection = await connectToHostedSQL();
     console.log("MySQL Database connection established!");
 
 
