@@ -22,7 +22,14 @@ class UserPointsController {
 
   // creating new points entry for user
   async putEntry(req: Request, res: Response): Promise<void> {
-    const transact = req.body;
+    const transact = {
+      userId: req.body.uid,
+      transactionType: req.body.type,
+      points: req.body.points,
+      userDescription: req.body.role,
+      referralUserId: req.body?.refer,
+      reason: req.body?.reason,
+    };
     try {
       const data = await this.serviceInstance.createEntry(transact);
       const message = new messageDTO(
@@ -43,6 +50,26 @@ class UserPointsController {
     const userId = req.params.id;
     this.serviceInstance
       .getPointsEntry(userId)
+      .then((data) => {
+        res.status(200).send({
+          message: "points entry found!",
+          data,
+        });
+      })
+      .catch((err) => {
+        res.status(500).send({
+          message: "Internal Server Error",
+          error: err,
+        });
+      });
+  }
+
+  // update existing points entry
+  async updateEntry(req: Request, res: Response): Promise<void> {
+    const userId = req.params.id;
+    const points = req.query.points || 0;
+    this.serviceInstance
+      .updatePointsEntry(userId, +points)
       .then((data) => {
         const message = new messageDTO(200, "points entry found!", { data });
         res.status(200).send(instanceToPlain(message));

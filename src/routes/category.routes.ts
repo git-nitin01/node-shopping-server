@@ -14,8 +14,47 @@ const categoryController = CategoryController.getInstance();
 /**
  * @swagger
  * tags:
- *   name: Category
- *   description: Categories related API(s)
+ *   - name: Category
+ *     description: Categories related API(s)
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     CategoryInputDTO:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *         description:
+ *           type: string
+ *         imageURL:
+ *           type: string
+ *         productIds:
+ *           type: array
+ *           items:
+ *             type: string
+ *       required:
+ *         - name
+ *         - description
+ *         - imageURL
+ *
+ *     CategoryDTO:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         name:
+ *           type: string
+ *         description:
+ *           type: string
+ *         imageURL:
+ *           type: string
+ *         productIds:
+ *           type: array
+ *           items:
+ *             type: string
  */
 
 /**
@@ -23,7 +62,8 @@ const categoryController = CategoryController.getInstance();
  * /categories:
  *   post:
  *     summary: Create a new category
- *     tags: [Categories]
+ *     tags:
+ *       - Category
  *     requestBody:
  *       required: true
  *       content:
@@ -52,10 +92,11 @@ router.post(
 
 /**
  * @swagger
- * /categories:
+ * /categories/{id}:
  *   put:
  *     summary: Update a category
- *     tags: [Categories]
+ *     tags:
+ *       - Category
  *     parameters:
  *       - in: path
  *         name: id
@@ -96,7 +137,8 @@ router.put(
  * /categories/{id}:
  *   delete:
  *     summary: Delete a category
- *     tags: [Categories]
+ *     tags:
+ *       - Category
  *     parameters:
  *       - in: path
  *         name: id
@@ -123,7 +165,8 @@ router.delete(
  * /categories/{id}:
  *   get:
  *     summary: Get a category by ID
- *     tags: [Categories]
+ *     tags:
+ *       - Category
  *     parameters:
  *       - in: path
  *         name: id
@@ -154,7 +197,8 @@ router.get(
  * /categories:
  *   get:
  *     summary: Get all categories
- *     tags: [Categories]
+ *     tags:
+ *       - Category
  *     responses:
  *       200:
  *         description: The categories were successfully found

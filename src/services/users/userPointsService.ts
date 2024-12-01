@@ -19,7 +19,7 @@ class UserPointsService {
   // create new entry
   async createEntry(transact: any): Promise<userPointsDTO> {
     // confirm user existence
-    const document = await User.findOne({ userId: transact.userId });
+    const document = await User.findOne({ uid: transact.userId });
     if (!document) {
       throw new Error("User not found for points entry!");
     } else {
@@ -27,12 +27,11 @@ class UserPointsService {
       const pointsDetail = new userPointsDTO(
         transact.userId,
         transact.transactionType,
-        document?.pointsBalance,
-        document?.role,
-        document?.referralUserId,
-        transact.reason,
+        transact.points,
+        transact.userDescription,
+        transact?.referralUserId,
+        transact?.reason,
       );
-
       const newEntry = new UserPoints(pointsDetail);
       const savedEntry = await newEntry.save();
       if (!savedEntry) {
@@ -48,6 +47,23 @@ class UserPointsService {
     if (!document) {
       throw new Error("Unable to find points entry for user!");
     }
+    return plainToClass(userPointsDTO, document.toObject());
+  }
+
+  // update user points service
+  async updatePointsEntry(
+    userId: string,
+    points: number,
+  ): Promise<userPointsDTO> {
+    const document = await UserPoints.findOne({ userId });
+    if (!document) {
+      throw new Error("Unable to find points entry for user!");
+    }
+    document.updateOne({
+      $set: {
+        points: points,
+      },
+    });
     return plainToClass(userPointsDTO, document.toObject());
   }
 

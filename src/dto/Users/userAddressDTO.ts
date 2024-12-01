@@ -1,21 +1,34 @@
+/* eslint-disable max-params */
 export class userAddressDTO {
-  userId: string;
+  uid: string;
+  name?: string;
   street?: string;
   city?: string;
-  country?: string;
-  zipCode?: string;
+  state?: string;
+  pincode?: string;
+  mobile?: number;
+  defaultAddress?: boolean;
+  pref?: string;
 
   constructor(
-    userId: string,
+    uid: string,
+    name?: string,
     street?: string,
     city?: string,
-    country?: string,
-    zipCode?: string,
+    state?: string,
+    pincode?: string,
+    mobile?: number,
+    defaultAddress?: boolean,
+    pref?: string,
   ) {
-    this.userId = userId;
+    this.uid = uid;
+    this.name = name;
     this.street = street;
     this.city = city;
-    this.country = country;
-    this.zipCode = zipCode;
+    this.state = state;
+    this.pincode = pincode;
+    this.mobile = mobile;
+    this.defaultAddress = defaultAddress;
+    this.pref = pref;
   }
 }

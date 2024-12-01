@@ -3,16 +3,19 @@
 import { Request, Response } from "express";
 import UserService from "../../services/users/userService";
 import { userDTO } from "../../dto/Users/userDTO";
+import UserPointsService from "../../services/users/userPointsService";
 // import { Session } from "inspector";
 // import { access } from "fs";
 
 class UserController {
   private serviceInstance: UserService;
   private static instance: UserController;
+  private pointsInstance: UserPointsService;
 
   // implement singelton pattern
   private constructor() {
     this.serviceInstance = UserService.getServiceInstance();
+    this.pointsInstance = UserPointsService.getServiceInstance();
   }
 
   // return controller instance
@@ -33,9 +36,20 @@ class UserController {
     this.serviceInstance
       .createNewUser(userDetails)
       .then(async (_data) => {
-        res.status(201).send({
-          message: "user created at admin",
-        });
+        this.pointsInstance
+          .createEntry({
+            userId: req.body.uid,
+            transactionType: "new user login",
+            points: 500,
+            userDescription: req.body.role,
+            referralUserId: req.body?.refer,
+            reason: req.body?.reason,
+          })
+          .then(async (_) => {
+            res.status(201).send({
+              message: "user created at admin",
+            });
+          });
       })
       .catch((error) => {
         res.status(500).send({

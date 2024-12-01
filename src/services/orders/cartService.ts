@@ -205,8 +205,11 @@ class cartService {
   public async deleteCartProduct(
     productId: string,
     CartID: string,
+    productSize: string,
   ): Promise<void> {
-    await CartItem.destroy({ where: { ProductID: productId, CartID: CartID } });
+    await CartItem.destroy({
+      where: { ProductID: productId, CartID: CartID, size: productSize },
+    });
   }
 
   private async mapCartToDTO(cart: any, cartItems?: any): Promise<cartDTO> {

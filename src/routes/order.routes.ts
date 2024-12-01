@@ -6,7 +6,6 @@ import {
 } from "../middlewares/orderManagementMiddleware/orderMiddleware";
 import { orderSchema } from "../schemas/orderManagementSchema/orderSchema";
 import { validateUserID } from "../middlewares/orderManagementMiddleware/cartMiddleware";
-// import { verifyFirebaseToken } from "../middlewares/auth/firebaseJWT";
 
 const router = express.Router();
 const orderController = OrderController.getInstance();
@@ -68,9 +67,9 @@ router.post(
 
 /**
  * @swagger
- * /orders/{id}:
+ * /orders/byUserId:
  *   get:
- *     summary: Get order by ID
+ *     summary: Get order by userId
  *     tags: [Orders]
  *     parameters:
  *       - in: path
@@ -93,9 +92,36 @@ router.get(
   "/byUserID",
   validateUserID(),
   async (req: Request, res: Response) => {
-    await orderController.getOrderById(req, res);
+    await orderController.getOrderByUserId(req, res);
   },
 );
+
+/**
+ * @swagger
+ * /orders/{id}:
+ *   get:
+ *     summary: Get order by order ID
+ *     tags: [Orders]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Order ID
+ *     responses:
+ *       200:
+ *         description: Order details for the specified ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/OrderDTO"
+ *       404:
+ *         description: Order not found
+ */
+router.get("/:id", validateOrderId(), async (req: Request, res: Response) => {
+  await orderController.getOrderById(req, res);
+});
 
 /**
  * @swagger

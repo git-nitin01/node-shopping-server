@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
-import { messageDTO } from "../../dto/messageDTO";
 import UserAddressService from "../../services/users/userAddressService";
-import { instanceToPlain } from "class-transformer";
 
 class UserAddressController {
   private serviceInstance: UserAddressService;
@@ -22,49 +20,70 @@ class UserAddressController {
 
   // creating new address entry for user
   async putEntry(req: Request, res: Response): Promise<void> {
-    const transact = req.body;
+    const resource = req.body;
     try {
-      const data = await this.serviceInstance.createAddress(transact);
-      const message = new messageDTO(200, "address entry creation success", {
-        data,
+      await this.serviceInstance.createAddress(resource);
+      res.status(200).send({
+        message: "address entry created!",
       });
-      res.status(200).send(instanceToPlain(message));
     } catch (err: any) {
-      console.error("Error creating address entry: ", err); // Log the error
-      const message = new messageDTO(500, "Internal Server Error", err.message);
-      res.status(500).send(instanceToPlain(message));
+      res.status(500).send({
+        message: `${err} - address entry creation failed!`,
+      });
     }
   }
 
   // get existing points entry
   async getEntry(req: Request, res: Response): Promise<void> {
-    const userId = req.params.id;
+    const uid = req.params.id;
     this.serviceInstance
-      .getAddressEntry(userId)
+      .getAddressEntry(uid)
       .then((data) => {
-        const message = new messageDTO(200, "address entry found!", data);
-        res.status(200).send(instanceToPlain(message));
+        res.status(200).send({
+          message: "address entry found!",
+          addressData: data,
+        });
       })
       .catch((err) => {
-        const message = new messageDTO(500, err);
-        res.status(500).send(instanceToPlain(message));
+        res.status(404).send({
+          message: `${err} - address entry not found!`,
+        });
       });
   }
 
   // delete Entry
   async deleteEntry(req: Request, res: Response): Promise<void> {
-    const userId = req.params.id;
+    const uid = req.params.id;
+    const dataId = req.query.id as string;
     this.serviceInstance
-      .deleteEntry(userId)
-      .then((data) => {
-        const message = new messageDTO(200, "address entry deletion success!", {
-          data,
+      .deleteEntry(uid, dataId)
+      .then(() => {
+        res.status(200).send({
+          message: "address entry deleted!",
         });
-        res.status(200).send(instanceToPlain(message));
       })
       .catch((err) => {
-        const message = new messageDTO(500, err);
-        res.status(500).send(instanceToPlain(message));
+        res.status(404).send({
+          message: `${err} - address entry not found!`,
+        });
+      });
+  }
+
+  // update entry
+  async updateEntry(req: Request, res: Response): Promise<void> {
+    const resource = req.body;
+    this.serviceInstance
+      .updateEntry(resource)
+      .then((data) => {
+        res.status(200).send({
+          message: "address entry updated!",
+          addressData: data,
+        });
+      })
+      .catch((err) => {
+        res.status(404).send({
+          message: `${err} - address entry not found!`,
+        });
       });
   }
 }

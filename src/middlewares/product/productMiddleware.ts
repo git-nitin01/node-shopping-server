@@ -4,6 +4,8 @@ import {
   productPostBodySchema,
 } from "../../schemas/ProductMangementSchema/productSchema";
 import { ZodError } from "zod";
+import { Product, Review } from "../../models/mongodb/products.model";
+import mongoose from "mongoose";
 
 const validateProductPostBody = (
   req: Request,
@@ -43,4 +45,46 @@ const validateProductIdParam = () => {
     }
   };
 };
-export { validateProductPostBody, validateProductIdParam };
+
+const updateProductRatings = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { productId } = req.params;
+
+    const aggregationResult = await Review.aggregate([
+      { $match: { productId: new mongoose.Types.ObjectId(productId) } },
+      {
+        $group: {
+          _id: "$productId",
+          avgRating: { $avg: "$rating" },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    if (aggregationResult.length > 0) {
+      const { avgRating, count } = aggregationResult[0];
+
+      await Product.findByIdAndUpdate(productId, {
+        averageRating: avgRating,
+        ratingCount: count,
+      });
+    }
+
+    next();
+  } catch (error: any) {
+    res.status(500).json({
+      message: "Failed to update product ratings",
+      error: error.message,
+    });
+  }
+};
+
+export {
+  validateProductPostBody,
+  validateProductIdParam,
+  updateProductRatings,
+};

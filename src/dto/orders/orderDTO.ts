@@ -21,7 +21,7 @@ export interface orderInputDTO {
   totalAmount: string;
   orderDate: Date;
   deliveryAddressId: number;
-  paymentId: number;
+  paymentId: number | null;
   status: string;
   Products: [
     {

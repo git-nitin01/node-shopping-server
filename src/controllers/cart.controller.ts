@@ -59,9 +59,11 @@ class cartController {
     try {
       const CartID: string = req.params.id;
       const productId: string = req.body.productId;
+      const productSize: string = req.body.size;
       const deletedCartItem = await this.cartService.deleteCartProduct(
         productId,
         CartID,
+        productSize,
       );
 
       res.status(200).json({ message: "Product has been deleted" });

@@ -6,10 +6,12 @@ const { Schema } = mongoose;
 
 // creating userAddress schema
 const userAddressSchema = new Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+  uid: {
+    type: String,
     required: true,
+  },
+  name: {
+    type: String,
   },
   street: {
     type: String,
@@ -18,13 +20,24 @@ const userAddressSchema = new Schema({
     type: String,
     required: true,
   },
-  country: {
+  state: {
     type: String,
     required: true,
   },
-  zipCode: {
+  pincode: {
     type: String,
     required: true,
+  },
+  mobile: {
+    type: Number,
+    required: true,
+  },
+  defaultAddress: {
+    type: Boolean,
+    default: false,
+  },
+  pref: {
+    type: String,
   },
 });
 

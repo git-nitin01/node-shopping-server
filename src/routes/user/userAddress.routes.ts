@@ -37,7 +37,7 @@ const controller = UserAddressController.getControllerInstance();
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/UserAddressDTO'
+ *               $ref: "#/components/schemas/UserAddressDTO"
  */
 router.get(
   "/get/:id",
@@ -61,7 +61,7 @@ router.get(
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/UserAddressInputDTO'
+ *             $ref: "#/components/schemas/UserAddressInputDTO"
  *     responses:
  *       200:
  *         description: User address created
@@ -79,13 +79,13 @@ router.post(
 );
 
 // end-point for deleting user address
-// expects: user id as url parameter
+// expects: user id as url parameter and address id as query parameter
 // swagger
 /**
  * @swagger
  * /userAddress/remove/{id}:
  *   delete:
- *     summary: Delete user address
+ *     summary: Delete a user address
  *     tags: [User Address]
  *     parameters:
  *       - in: path
@@ -94,6 +94,12 @@ router.post(
  *           type: string
  *         required: true
  *         description: User ID
+ *       - in: query
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Address ID
  *     responses:
  *       200:
  *         description: User address deleted
@@ -105,6 +111,43 @@ router.delete(
   verifyFirebaseToken,
   async (req: Request, res: Response) => {
     await controller.deleteEntry(req, res);
+  },
+);
+
+// end-point for updating user address
+// expects: user id as url parameter and request body with { userId, street, city, country, zipCode }
+// swagger
+/**
+ * @swagger
+ * /userAddress/update/{id}:
+ *   put:
+ *     summary: Update user address
+ *     tags: [User Address]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: "#/components/schemas/UserAddressInputDTO"
+ *     responses:
+ *       200:
+ *         description: User address updated
+ *       400:
+ *         description: Invalid request body
+ */
+router.put(
+  "/update",
+  verifyFirebaseToken,
+  validateAddress(addressSchema),
+  async (req: Request, res: Response) => {
+    await controller.updateEntry(req, res);
   },
 );
 

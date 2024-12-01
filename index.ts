@@ -1,32 +1,38 @@
+/* eslint-disable prettier/prettier */
 import express, { Application, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import bodyParser from "body-parser";
-import { connectToMySQL } from "./src/config/mySql";
+import { connectToHostedSQL } from "./src/config/mySql";
 import connectToMongoDB from "./src/config/mongoDB";
 import router from "./src/Router";
 import setupSwagger from "./swagger";
-// import consumerMessages from "./src/utilities/consumer";
-
-dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
-
 import admin from "firebase-admin";
-// import { env } from "process";
-
 import cookieParser from "cookie-parser";
-// import { buffer } from "stream/consumers";
+
+// Load environment variables
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
 const app: Application = express();
 
-// Middleware
-app.use(cors());
+// Middleware setup
+const corsOptions = {
+  origin: "*", // Update with your Swagger UI URL or frontend URL
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed methods
+  allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
+  credentials: true, // Allow credentials if needed
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// Swagger setup
 setupSwagger(app);
 
-// Routes
+// Routes setup
 app.use("/jk", router);
 
 // 404 Handler
@@ -34,7 +40,7 @@ app.use((req: Request, res: Response) => {
   res.status(404).send({ error: "Not found" });
 });
 
-// firebase admin sdk setup
+// Firebase Admin SDK setup
 const base64ServiceAccount = process.env
   .FIREBASE_SERVICE_ACCOUNT_BASE64 as string;
 const serviceAccount = JSON.parse(
@@ -44,35 +50,25 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-// comment out if any databse is failing to connect.
+// Connect to databases
 const connectDatabases = async () => {
   try {
-    // Uncomment to connect to MySQL if needed
-    const mysqlConnection = await connectToMySQL();
+    const mysqlConnection = await connectToHostedSQL();
     console.log("MySQL Database connection established!");
+
 
     const mongoDBConnection = await connectToMongoDB();
     console.log("MongoDB connection established!");
 
     return { mysqlConnection, mongoDBConnection };
-    // return { mongoDBConnection };
+
   } catch (error) {
     console.log(error);
     throw new Error("Failed to connect to databases");
   }
 };
 
-// // Kafka Consumer
-// const startKafkaConsumer = async () => {
-//     try {
-//         await consumerMessages();
-//         console.log('Kafka consumer started and listening...');
-//     } catch (error) {
-//         console.error('Error starting Kafka consumer:', error);
-//     }
-// };
-
-// Start server after connecting databases and starting Kafka consumer
+// Start server after connecting databases
 Promise.all([connectDatabases()])
   .then(() => {
     const port = process.env.PORT || 4000;
@@ -84,3 +80,6 @@ Promise.all([connectDatabases()])
     console.error(err.message);
     process.exit(1); // Exit process on error
   });
+
+// Preflight request handling for CORS
+app.options("*", cors(corsOptions));

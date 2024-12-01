@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { RequestHandler } from "express";
 import { ParamsDictionary } from "express-serve-static-core";
@@ -13,6 +14,7 @@ import {
   cartSchemaDTO,
   cartInputSchemaDTO,
 } from "./src/swaggerSchema/cartManagementSchema";
+
 const options = {
   definition: {
     openapi: "3.0.0",
@@ -34,7 +36,19 @@ const options = {
         cartDTO: cartSchemaDTO,
         cartInputDTO: cartInputSchemaDTO,
       },
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT", // Optional, to specify the format of the token
+        },
+      },
     },
+    security: [
+      {
+        bearerAuth: [], // This applies the bearerAuth security scheme globally
+      },
+    ],
   },
   apis: ["./src/routes/*.ts"], // Adjust the path to your route files
 };
@@ -61,6 +75,28 @@ const setupSwagger = (app: {
   ) => void;
 }) => {
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+
+  // Add this line to allow Swagger UI to include the authentication token in API calls
+  app.use(
+    "/api-docs",
+    swaggerUi.serve,
+    swaggerUi.setup(specs, {
+      swaggerOptions: {
+        authAction: {
+          bearerAuth: {
+            name: "bearerAuth",
+            schema: {
+              type: "http",
+              in: "header",
+              name: "Authorization",
+              description: "",
+            },
+            value: "Bearer <JWT Token here>",
+          },
+        },
+      },
+    }),
+  );
 };
 
 export default setupSwagger;

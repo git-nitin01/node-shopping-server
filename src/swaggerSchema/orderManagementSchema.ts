@@ -62,7 +62,6 @@ export const orderInputSchemaDTO = {
     },
     PaymentID: {
       type: "string",
-
       nullable: true,
     },
     Status: {

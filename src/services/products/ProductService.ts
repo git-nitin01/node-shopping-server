@@ -65,6 +65,8 @@ class ProductService {
       categoryId: product.categoryId?.toString() || "",
       category: product.category,
       isPopular: product.isPopular,
+      ratingCount: product.ratingCount,
+      averageRating: product.averageRating,
       sizes: product.sizes.map((size: any) => ({
         size: size.size,
         price: size.price,
@@ -72,8 +74,8 @@ class ProductService {
         inStock: size.inStock,
         isPopular: size.isPopular,
         subTitle: size.subTitle,
+        discountPercentage: size.discountPercentage,
       })),
-      reviews: product.reviews.map((reviewId: string) => reviewId.toString()),
     };
   }
 }

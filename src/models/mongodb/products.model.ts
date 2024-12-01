@@ -20,7 +20,11 @@ const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
   category: { type: String, required: true },
-  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
+  categoryId: {
+    type: mongoose.Schema.Types.Mixed,
+    ref: "Category",
+    default: "",
+  },
   isPopular: { type: Boolean, default: false },
   sizes: [
     {
@@ -32,7 +36,8 @@ const productSchema = new mongoose.Schema({
       subTitle: { type: String },
     },
   ],
-  reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
+  averageRating: { type: Number, default: 0 },
+  ratingCount: { type: Number, default: 0 },
 });
 
 const categorySchema = new mongoose.Schema({

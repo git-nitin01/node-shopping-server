@@ -7,8 +7,7 @@ const { Schema } = mongoose;
 // creating userPoints schema
 const userPointsSchema = new Schema({
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    type: String,
     required: true,
   },
   transactionType: {
@@ -27,8 +26,7 @@ const userPointsSchema = new Schema({
     immutable: true,
   },
   referralUserId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    type: String,
     default: null,
   },
   reason: {

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import ReviewService from "../../services/products/ReviewService";
 import { ReviewDTO, ReviewInputDTO } from "../../dto/products/reviewDTO";
+import { updateProductRatings } from "../../middlewares/product/productMiddleware";
 
 class ReviewController {
   private static instance: ReviewController;
@@ -24,7 +25,9 @@ class ReviewController {
       const reviewInput: ReviewInputDTO = { ...req.body, productId }; // Add productId to the review data
       const createdReview: ReviewDTO =
         await this.reviewService.createReview(reviewInput);
-      res.status(201).json(createdReview);
+      await updateProductRatings(req, res, () => {
+        res.status(201).json(createdReview);
+      });
     } catch (error: any) {
       res
         .status(500)
