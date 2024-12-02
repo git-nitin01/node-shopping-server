@@ -113,19 +113,20 @@ class cartService {
   ): Promise<void> => {
     const existingCartItem = await CartItem.findOne({
       where: {
-        CartID: CartID,
-        ProductID: prodData?.productID,
-        size: prodData?.size,
+        CartID,
+        ProductID: prodData.productID,
+        size: prodData.size,
       },
-      transaction: transaction,
     });
+    console.log(CartID, prodData, "saasasasas");
+    console.log(existingCartItem, "existingCartItem");
     if (existingCartItem) {
       // Update existing order item
       const updatedQuantity =
         type === "create"
           ? existingCartItem.dataValues.Quantity + prodData?.quantity
           : prodData?.quantity;
-
+      console.log(updatedQuantity, "updatedQuantity");
       await CartItem.update(
         {
           Quantity: updatedQuantity,
@@ -206,10 +207,11 @@ class cartService {
     productId: string,
     CartID: string,
     productSize: string,
-  ): Promise<void> {
+  ): Promise<cartDTO | null> {
     await CartItem.destroy({
       where: { ProductID: productId, CartID: CartID, size: productSize },
     });
+    return this.getCartById(CartID);
   }
 
   private async mapCartToDTO(cart: any, cartItems?: any): Promise<cartDTO> {

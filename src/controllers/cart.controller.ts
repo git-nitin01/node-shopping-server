@@ -66,7 +66,7 @@ class cartController {
         productSize,
       );
 
-      res.status(200).json({ message: "Product has been deleted" });
+      res.status(200).json(deletedCartItem);
     } catch (error: any) {
       res
         .status(500)
