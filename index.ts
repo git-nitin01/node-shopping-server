@@ -11,6 +11,8 @@ import admin from "firebase-admin";
 import cookieParser from "cookie-parser";
 
 // Load environment variables
+
+
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
 const app: Application = express();
