@@ -1,2 +1,2 @@
 # node-shopping-ui
-Managed by jenkins
+Managed by jenkins using docker and render platform
