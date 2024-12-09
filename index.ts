@@ -10,6 +10,8 @@ import setupSwagger from "./swagger";
 import admin from "firebase-admin";
 import cookieParser from "cookie-parser";
 
+const PORT = process.env.PORT || 4000;
+
 // Load environment variables
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
@@ -71,9 +73,8 @@ const connectDatabases = async () => {
 // Start server after connecting databases
 Promise.all([connectDatabases()])
   .then(() => {
-    const port = process.env.PORT || 4000;
-    app.listen(port, () => {
-      console.log(`Express server started on port ${port}`);
+    app.listen(PORT, () => {
+      console.log(`Express server started on PORT ${PORT}`);
     });
   })
   .catch((err: any) => {
