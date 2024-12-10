@@ -1,7 +1,15 @@
 name: Lint
 
 on:
+  push:
+    branches:
+      - release
+    paths:
+      - '**/*.js'
+      - '**/*.ts'
   pull_request:
+    branches:
+      - release
     paths:
       - '**/*.js'
       - '**/*.ts'
@@ -22,8 +30,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: try fix Linting
-      - run: npm run lint:fix
+      - name: Try to fix Linting
+        run: npm run lint:fix
 
       - name: Run ESLint
         run: npm run lint
