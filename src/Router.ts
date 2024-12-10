@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 // import OrderRoutes from "./routes/order.routes";
-// import ProductRoutes from "./routes/product.routes";
+import ProductRoutes from "./routes/product.routes";
 import InventoryRoutes from "./routes/inventory.routes";
 import OfferRoutes from "./routes/Offers.routes";
 import ReviewRoutes from "./routes/review.routes";
@@ -21,7 +21,7 @@ router.get("/health-check", (req: Request, res: Response) => {
 // Routes
 router.use("/orders", orderRoutes);
 router.use("/cart", cartRoutes);
-// router.use("/products", ProductRoutes);
+router.use("/products", ProductRoutes);
 router.use("/inventory", InventoryRoutes);
 router.use("/offer", OfferRoutes);
 router.use("/reviews", ReviewRoutes);
