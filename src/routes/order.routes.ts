@@ -180,12 +180,12 @@ router.put(
  *       404:
  *         description: Order not found
  */
-router.delete(
-  "/:id",
-  validateOrderId(),
-  async (req: Request, res: Response) => {
-    await orderController.deleteOrder(req, res);
-  },
-);
+// router.delete(
+//   "/:id",
+//   validateOrderId(),
+//   async (req: Request, res: Response) => {
+//     await orderController.deleteOrder(req, res);
+//   },
+// );
 
 export default router;
